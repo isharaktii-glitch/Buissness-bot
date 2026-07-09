@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Bot - Register</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .stars {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-image:
+      radial-gradient(2px 2px at 20px 30px, white, transparent),
+      radial-gradient(2px 2px at 60px 70px, white, transparent),
+      radial-gradient(1px 1px at 90px 40px, white, transparent),
+      radial-gradient(1px 1px at 130px 80px, white, transparent);
+    background-size: 200px 200px;
+    animation: moveStars 60s linear infinite;
+    opacity: 0.4;
+  }
+  @keyframes moveStars {
+    from { transform: translateY(0); }
+    to { transform: translateY(-200px); }
+  }
+  .card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 1;
+  }
+  .card:hover {
+    transform: rotateX(2deg) rotateY(2deg);
+  }
+  h1 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: 28px;
+    background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  p.subtitle {
+    color: #aaa;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 14px;
+  }
+  input {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    transition: 0.3s;
+  }
+  input:focus {
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+  }
+  input::placeholder { color: #888; }
+  button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(123, 47, 247, 0.4);
+  }
+  .msg {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 14px;
+  }
+  .error { color: #ff6b6b; }
+  .success { color: #51cf66; }
+  .link {
+    text-align: center;
+    margin-top: 20px;
+    color: #aaa;
+    font-size: 14px;
+  }
+  .link a { color: #00d4ff; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="card">
+  <h1>Galaxy Bot</h1>
+  <p class="subtitle">ඔබේ business AI assistant එක සකසන්න</p>
+
+  <form id="registerForm">
+    <input type="text" id="name" placeholder="Full Name" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="tel" id="phone" placeholder="Phone Number" required>
+    <input type="password" id="password" placeholder="Password" required minlength="6">
+    <button type="submit">Register</button>
+  </form>
+
+  <div id="message" class="msg"></div>
+
+  <div class="link">
+    Account එකක් තියෙනවද? <a href="/login.html">Login</a>
+  </div>
+</div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const messageEl = document.getElementById('message');
+  messageEl.textContent = '';
+  messageEl.className = 'msg';
+
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const phone = document.getElementById('phone').value;
+  const password = document.getElementById('password').value;
+
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      messageEl.textContent = 'Registration Success! Redirecting...';
+      messageEl.className = 'msg success';
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userId', data.user.id);
+      setTimeout(() => {
+        window.location.href = '/select-bot.html';
+      }, 1000);
+    } else {
+      messageEl.textContent = data.error || 'Registration failed';
+      messageEl.className = 'msg error';
+    }
+  } catch (err) {
+    messageEl.textContent = 'Network error. Try again.';
+    messageEl.className = 'msg error';
+  }
+});
+</script>
+
+</body>
+</html>
