@@ -1,0 +1,16 @@
+{
+  "name": "galaxy-bot-saas",
+  "version": "1.0.0",
+  "description": "AI WhatsApp Auto-Reply SaaS for Businesses",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "twilio": "^5.0.0",
+    "@anthropic-ai/sdk": "^0.27.0"
+  }
+}
