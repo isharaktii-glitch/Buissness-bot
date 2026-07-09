@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Bot - Customize</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(ellipse at center, #1b1035 0%, #0a0715 100%);
+    min-height: 100vh;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 15px;
+  }
+  .stars {
+    position: fixed;
+    width: 100%; height: 100%;
+    top: 0; left: 0;
+    background-image:
+      radial-gradient(2px 2px at 20px 30px, white, transparent),
+      radial-gradient(1px 1px at 90px 40px, white, transparent),
+      radial-gradient(2px 2px at 160px 120px, white, transparent);
+    background-size: 250px 250px;
+    opacity: 0.4;
+    z-index: 0;
+  }
+  .card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 1;
+  }
+  h1 {
+    text-align: center;
+    font-size: 26px;
+    margin-bottom: 6px;
+    background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  p.subtitle {
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    color: #bbb;
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  input, textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.07);
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    transition: 0.3s;
+  }
+  input:focus, textarea:focus {
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 3px rgba(0,212,255,0.15);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .logo-upload {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 8px;
+  }
+  .logo-preview {
+    width: 70px; height: 70px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px dashed rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .logo-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .upload-btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  input[type="file"] { display: none; }
+
+  button.submit {
+    width: 100%;
+    padding: 15px;
+    margin-top: 26px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button.submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(123,47,247,0.4);
+  }
+  .msg { text-align: center; margin-top: 14px; font-size: 14px; }
+  .error { color: #ff6b6b; }
+  .success { color: #51cf66; }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="card">
+  <h1>Bot එක සකසමු</h1>
+  <p class="subtitle">ඔබේ business assistant එකට details දාන්න</p>
+
+  <form id="customizeForm">
+    <label>Bot Name (bot එකේ නම)</label>
+    <input type="text" id="botName" placeholder="e.g. Nova Assistant" required>
+
+    <label>Bot එකට ඔබව ආමන්ත්‍රණය කරන්නේ කුමන නමින්ද?</label>
+    <input type="text" id="botAddressName" placeholder="e.g. Boss / Sir / ඔබේ නම" required>
+
+    <label>Business Name</label>
+    <input type="text" id="businessName" placeholder="e.g. Galaxy Electronics" required>
+
+    <label>Business Logo</label>
+    <div class="logo-upload">
+      <div class="logo-preview" id="logoPreview">📷</div>
+      <button type="button" class="upload-btn" onclick="document.getElementById('logoInput').click()">Upload Logo</button>
+      <input type="file" id="logoInput" accept="image/*">
+    </div>
+
+    <label>Business Description</label>
+    <textarea id="businessDescription" placeholder="ඔබේ business එක ගැන කෙටි විස්තරයක් - AI bot එකට customer messages වලට reply කරන්න මේක උදව් වෙනවා" required></textarea>
+
+    <button type="submit" class="submit">Save & Continue →</button>
+  </form>
+
+  <div id="message" class="msg"></div>
+</div>
+
+<script>
+let logoUrl = '';
+const token = localStorage.getItem('token');
+const templateId = localStorage.getItem('selectedTemplateId');
+
+if (!token || !templateId) {
+  window.location.href = '/select-bot.html';
+}
+
+document.getElementById('logoInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const preview = document.getElementById('logoPreview');
+  preview.innerHTML = '<span style="font-size:12px;">Uploading...</span>';
+
+  try {
+    const res = await fetch('/api/bot/upload-logo', {
+      method: 'POST',
+      headers: { 'x-filename': file.name },
+      body: file
+    });
+    const data = await res.json();
+    if (res.ok) {
+      logoUrl = data.url;
+      preview.innerHTML = `<img src="${data.url}" alt="logo">`;
+    } else {
+      preview.innerHTML = '❌';
+    }
+  } catch (err) {
+    preview.innerHTML = '❌';
+  }
+});
+
+document.getElementById('customizeForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const messageEl = document.getElementById('message');
+
+  const payload = {
+    templateId: parseInt(templateId),
+    botName: document.getElementById('botName').value,
+    botAddressName: document.getElementById('botAddressName').value,
+    businessName: document.getElementById('businessName').value,
+    businessLogoUrl: logoUrl,
+    businessDescription: document.getElementById('businessDescription').value
+  };
+
+  try {
+    const res = await fetch('/api/bot/configure', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      messageEl.textContent = 'Saved! Redirecting to dashboard...';
+      messageEl.className = 'msg success';
+      setTimeout(() => window.location.href = '/dashboard.html', 1000);
+    } else {
+      messageEl.textContent = data.error || 'Something went wrong';
+      messageEl.className = 'msg error';
+    }
+  } catch (err) {
+    messageEl.textContent = 'Network error';
+    messageEl.className = 'msg error';
+  }
+});
+</script>
+
+</body>
+</html>
