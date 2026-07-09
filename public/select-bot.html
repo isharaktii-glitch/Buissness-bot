@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Bot - Select Your Assistant</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(ellipse at center, #1b1035 0%, #0a0715 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: white;
+  }
+  .stars {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0; left: 0;
+    background-image:
+      radial-gradient(2px 2px at 20px 30px, white, transparent),
+      radial-gradient(1px 1px at 90px 40px, white, transparent),
+      radial-gradient(2px 2px at 160px 120px, white, transparent),
+      radial-gradient(1px 1px at 220px 60px, white, transparent);
+    background-size: 250px 250px;
+    opacity: 0.5;
+    z-index: 0;
+    animation: drift 80s linear infinite;
+  }
+  @keyframes drift {
+    from { background-position: 0 0; }
+    to { background-position: -250px -250px; }
+  }
+  header {
+    text-align: center;
+    padding: 50px 20px 20px;
+    position: relative;
+    z-index: 1;
+  }
+  header h1 {
+    font-size: 32px;
+    background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  header p { color: #999; font-size: 15px; }
+
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    padding: 50px 20px;
+    perspective: 1200px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .bot-card {
+    width: 260px;
+    height: 380px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s;
+    position: relative;
+  }
+
+  .bot-card:hover {
+    transform: rotateY(10deg) rotateX(5deg) translateY(-15px) scale(1.03);
+    box-shadow: 0 30px 60px rgba(123, 47, 247, 0.4);
+  }
+
+  .bot-card.selected {
+    border: 2px solid #00d4ff;
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
+    transform: translateY(-10px) scale(1.05);
+  }
+
+  .avatar-sphere {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    margin-bottom: 25px;
+    position: relative;
+    animation: float 4s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotateY(0deg); }
+    50% { transform: translateY(-12px) rotateY(180deg); }
+  }
+
+  .sphere-1 { background: radial-gradient(circle at 30% 30%, #00e5ff, #0066ff, #001a4d); box-shadow: 0 0 50px rgba(0, 200, 255, 0.6); }
+  .sphere-2 { background: radial-gradient(circle at 30% 30%, #b892ff, #7b2ff7, #2d0a5e); box-shadow: 0 0 50px rgba(123, 47, 247, 0.6); }
+  .sphere-3 { background: radial-gradient(circle at 30% 30%, #ff92d0, #ff2fd4, #5e0a4a); box-shadow: 0 0 50px rgba(255, 47, 212, 0.6); }
+
+  .bot-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .bot-desc {
+    font-size: 13px;
+    color: #aaa;
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .select-btn {
+    padding: 10px 28px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: auto;
+  }
+
+  .bot-card.selected .select-btn {
+    background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+    border: none;
+  }
+
+  .continue-wrap {
+    text-align: center;
+    padding: 20px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  #continueBtn {
+    padding: 16px 50px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.4;
+    pointer-events: none;
+    transition: 0.3s;
+  }
+
+  #continueBtn.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  #continueBtn.active:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(123, 47, 247, 0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<header>
+  <h1>ඔබේ AI Bot එක තෝරන්න</h1>
+  <p>ඔබේ business එකට ගැලපෙන assistant character එක select කරන්න</p>
+</header>
+
+<div class="container" id="botContainer">
+  <!-- Bot cards will be injected here -->
+</div>
+
+<div class="continue-wrap">
+  <button id="continueBtn">Continue →</button>
+</div>
+
+<script>
+let selectedTemplateId = null;
+
+async function loadTemplates() {
+  try {
+    const res = await fetch('/api/bot/templates');
+    const data = await res.json();
+    renderCards(data.templates);
+  } catch (err) {
+    document.getElementById('botContainer').innerHTML = '<p>Error loading bots. Try again.</p>';
+  }
+}
+
+function renderCards(templates) {
+  const container = document.getElementById('botContainer');
+  const sphereClasses = ['sphere-1', 'sphere-2', 'sphere-3'];
+
+  container.innerHTML = templates.map((bot, i) => `
+    <div class="bot-card" data-id="${bot.id}" onclick="selectBot(${bot.id}, this)">
+      <div class="avatar-sphere ${sphereClasses[i % 3]}"></div>
+      <div class="bot-name">${bot.template_name}</div>
+      <div class="bot-desc">${bot.description}</div>
+      <button class="select-btn">Select</button>
+    </div>
+  `).join('');
+}
+
+function selectBot(id, el) {
+  document.querySelectorAll('.bot-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTemplateId = id;
+
+  const continueBtn = document.getElementById('continueBtn');
+  continueBtn.classList.add('active');
+}
+
+document.getElementById('continueBtn').addEventListener('click', () => {
+  if (selectedTemplateId) {
+    localStorage.setItem('selectedTemplateId', selectedTemplateId);
+    window.location.href = '/customize-bot.html';
+  }
+});
+
+loadTemplates();
+</script>
+
+</body>
+</html>
